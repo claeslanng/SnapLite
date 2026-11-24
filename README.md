@@ -3,6 +3,9 @@
 A small Windows screenshot tool that lives in the tray. It uses no CPU while idle, about 14 MB of
 memory, and is ready in about 0.1 s.
 
+**[⬇ Download the latest release](https://github.com/claeslanng/SnapLite/releases/latest)**: a single
+exe for Windows 10/11 (64-bit), no installer. Pick `SnapLite-…-win-x64.exe` if you're not sure.
+
 - **Region, window, monitor or full screen**: saved to a file and copied to the clipboard.
 - **Full webpage**: renders a URL in a hidden browser (WebView2) and captures the whole page,
   with cookie banners and floating bars cleaned up.
