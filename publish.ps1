@@ -24,4 +24,15 @@ foreach ($profile in $Only) {
     if ($LASTEXITCODE -ne 0) { throw "Publishing $profile failed." }
     $exe = Get-Item "$dir\SnapLite.exe"
     '{0,-20} {1}  ({2:N1} MB)' -f $profile, $exe.FullName, ($exe.Length / 1MB)
+
+    if ($profile -eq 'SelfContained') {
+        # The download version: the exe zips from ~118 MB to ~46 MB (and runs uncompressed, so memory stays low).
+        $zip = Join-Path $PSScriptRoot 'publish\SnapLite-win-x64-standalone.zip'
+        Remove-Item $zip -ErrorAction SilentlyContinue
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $z = [System.IO.Compression.ZipFile]::Open($zip, 'Create')
+        try { [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($z, $exe.FullName, 'SnapLite.exe', 'Optimal') }
+        finally { $z.Dispose() }
+        '{0,-20} {1}  ({2:N1} MB)' -f 'Standalone zip', $zip, ((Get-Item $zip).Length / 1MB)
+    }
 }

@@ -3,8 +3,9 @@
 A small Windows screenshot tool that lives in the tray. It uses no CPU while idle, about 14 MB of
 memory, and is ready in about 0.1 s.
 
-**[⬇ Download the latest release](https://github.com/claeslanng/SnapLite/releases/latest)**: a single
-exe for Windows 10/11 (64-bit), no installer. Pick `SnapLite-…-win-x64.exe` if you're not sure.
+**[⬇ Download the latest release](https://github.com/claeslanng/SnapLite/releases/latest)**: one
+2.5 MB exe for Windows 10/11 (64-bit), no installer. It needs the free .NET 10 Desktop Runtime;
+Windows offers to install it if it's missing. Or get the standalone zip (46 MB), which needs nothing.
 
 - **Region, window, monitor or full screen**: saved to a file and copied to the clipboard.
 - **Full webpage**: renders a URL in a hidden browser (WebView2) and captures the whole page,
@@ -177,7 +178,8 @@ To regenerate the screenshots in `docs/` after a Release build, run `docs\make-s
 | `framework-dependent\SnapLite.exe` | 2.4 MB | .NET 10 Desktop Runtime | ~0.1 s | ~14 MB |
 | `self-contained\SnapLite.exe` | 117 MB | nothing | ~0.8 s | ~18 MB |
 
-The self-contained exe isn't compressed on purpose. Compression makes it 51 MB, but then every
+`publish.ps1` also zips the self-contained exe into `publish\SnapLite-win-x64-standalone.zip`
+(about 46 MB), which is the version to upload for download. The self-contained exe isn't compressed on purpose. Compression makes it 51 MB, but then every
 run unpacks the runtime into memory (about 79 MB instead of 18 MB). WinForms apps can't be
 trimmed. To build only one of them: `.\publish.ps1 -Only FrameworkDependent`.
 
