@@ -19,6 +19,15 @@ internal static class BrowserSetup
     /// <summary>Fixed by the public key in extension/manifest.json ("key"); a unit test checks they match.</summary>
     public const string ExtensionId = "gfgeiefplicdmofnbiinlhlknjdcnkpl";
 
+    /// <summary>
+    /// IDs the Chrome Web Store / Edge Add-ons gave the published extension (stores assign their own).
+    /// Add each one here when it's known; installed copies pick it up on their next start.
+    /// </summary>
+    public static readonly string[] StoreExtensionIds = [];
+
+    /// <summary>Every extension allowed to start SnapLite as its native messaging host.</summary>
+    public static IEnumerable<string> AllowedExtensionIds => [ExtensionId, .. StoreExtensionIds];
+
     /// <summary>Where each Chromium browser looks for native messaging hosts (HKCU).</summary>
     private static readonly (string Browser, string Key)[] Browsers =
     [
@@ -76,32 +85,46 @@ internal static class BrowserSetup
         try
         {
             if (!IsSetUp) return;
-            string? manifestExe = (string?)JsonNode.Parse(File.ReadAllText(HostManifestPath))?["path"];
-            if (!string.Equals(manifestExe, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase)) WriteHostManifest();
+            // Rewritten when the exe moved or the list of allowed extensions changed (e.g. a store ID was added).
+            if (File.ReadAllText(HostManifestPath) != HostManifestJson()) WriteHostManifest();
             string stamp = Path.Combine(ExtensionFolder, VersionFile);
-            if (!File.Exists(stamp) || File.ReadAllText(stamp) != StampText()) ExtractExtension();
+            if (!File.Exists(stamp) || File.ReadAllText(stamp) != StampText()) ExtractExtension(ExtensionFolder, forStore: false);
         }
         catch (Exception ex) { AppLog.Error("browser setup sync", ex); }
     }
 
+    private static string HostManifestJson() => new JsonObject
+    {
+        ["name"] = HostName,
+        ["description"] = "SnapLite screenshot tool",
+        ["path"] = Environment.ProcessPath,
+        ["type"] = "stdio",
+        ["allowed_origins"] = new JsonArray(AllowedExtensionIds.Select(id => (JsonNode)$"chrome-extension://{id}/").ToArray()),
+    }.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+
     private static void WriteHostManifest()
     {
-        var manifest = new JsonObject
-        {
-            ["name"] = HostName,
-            ["description"] = "SnapLite screenshot tool",
-            ["path"] = Environment.ProcessPath,
-            ["type"] = "stdio",
-            ["allowed_origins"] = new JsonArray($"chrome-extension://{ExtensionId}/"),
-        };
         Directory.CreateDirectory(Path.GetDirectoryName(HostManifestPath)!);
-        File.WriteAllText(HostManifestPath, manifest.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(HostManifestPath, HostManifestJson());
+    }
+
+    /// <summary>
+    /// <c>SnapLite.exe --export-extension &lt;folder&gt; [--store]</c>: writes the complete extension to a folder.
+    /// With --store, the developer "key" is left out of manifest.json (the stores assign their own ID).
+    /// </summary>
+    public static int ExportCli(string[] args)
+    {
+        string folder = args.Length > 1 && !args[1].StartsWith("--") ? args[1] : "extension-export";
+        if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+        ExtractExtension(Path.GetFullPath(folder), forStore: args.Contains("--store"));
+        return 0;
     }
 
     /// <summary>Extension files are embedded in the exe; the page scripts and icons are shared with the app.</summary>
-    private static void ExtractExtension()
+    private static void ExtractExtension() => ExtractExtension(ExtensionFolder, forStore: false);
+
+    private static void ExtractExtension(string root, bool forStore)
     {
-        string root = ExtensionFolder;
         Directory.CreateDirectory(root);
         var asm = Assembly.GetExecutingAssembly();
         foreach (string name in asm.GetManifestResourceNames())
@@ -125,7 +148,18 @@ internal static class BrowserSetup
             using var bmp = AppIcons.DrawBitmap(size);
             bmp.Save(Path.Combine(root, "icons", $"icon{size}.png"), ImageFormat.Png);
         }
-        File.WriteAllText(Path.Combine(root, VersionFile), StampText());
+
+        if (forStore)
+        {
+            string manifestPath = Path.Combine(root, "manifest.json");
+            var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(manifestPath))!;
+            manifest.Remove("key");
+            File.WriteAllText(manifestPath, manifest.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        }
+        else
+        {
+            File.WriteAllText(Path.Combine(root, VersionFile), StampText());
+        }
     }
 
     private static string StampText() =>

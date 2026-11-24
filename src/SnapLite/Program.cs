@@ -34,6 +34,7 @@ internal static class Program
             return DocShots.Run(args);
         }
         if (args.Length > 0 && args[0] == "--write-icon") return DocShots.WriteIcon(args);
+        if (args.Length > 0 && args[0] == "--export-extension") return BrowserSetup.ExportCli(args);
 
         ApplicationConfiguration.Initialize();
 

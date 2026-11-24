@@ -155,6 +155,10 @@ sections needs the app.
 The extension only asks for `activeTab`, so it can only see a tab when you click its icon or press
 one of its shortcuts. It has no access to your other tabs or your browsing history.
 
+Everything needed to publish it in the Chrome Web Store or Edge Add-ons (package, listing texts,
+images, checklist) is in [docs/store](docs/store/README.md). `publish.ps1` builds the upload
+package, `publish\SnapLite-extension-<version>-store.zip`.
+
 ## Command line
 
 ```powershell
@@ -178,6 +182,10 @@ node --test tests/extension
 The extension's tests need Node.js; the extension itself is plain JavaScript with no build step.
 
 To regenerate the screenshots in `docs/` after a Release build, run `docs\make-screenshots.ps1`.
+
+## Privacy
+
+SnapLite collects nothing and sends nothing anywhere; see the [privacy policy](docs/privacy.md).
 
 ## License
 

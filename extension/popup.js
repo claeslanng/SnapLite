@@ -39,7 +39,12 @@ const $ = (id) => document.getElementById(id);
       (s.running ? 'Captures are saved to your SnapLite folder.' : 'SnapLite will start when you capture.');
   } else {
     app.innerHTML = '<b class="warn">○ SnapLite app not connected</b><br>' +
-      'Captures are downloaded instead. To connect: SnapLite → Settings → Browser → Set up.';
+      'Captures are downloaded instead. To connect: SnapLite → Settings → Browser → Set up. ' +
+      '<a href="#" id="getApp">Get the SnapLite app</a>';
+    $('getApp').addEventListener('click', (e) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: 'https://github.com/claeslanng/SnapLite#readme' });
+    });
     $('useApp').closest('label').title = s?.error || '';
   }
 })();

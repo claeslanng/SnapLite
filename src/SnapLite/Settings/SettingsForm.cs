@@ -263,7 +263,8 @@ internal sealed class SettingsForm : Form
         buttons.Controls.Add(_browserRemove);
         AddRow(g, buttons);
 
-        AddRow(g, Hint("Then add the extension to your browser (once):\n" +
+        AddRow(g, Hint("Got the extension from the Chrome Web Store? Then Set up is all you need.\n\n" +
+                       "Otherwise, add the extension to your browser (once):\n" +
                        "1. Open the extensions page and turn on “Developer mode”.\n" +
                        "2. Click “Load unpacked” and choose this folder:"));
         var copy = new Button { Text = "Copy", AutoSize = true };

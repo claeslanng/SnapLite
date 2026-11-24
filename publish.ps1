@@ -25,6 +25,28 @@ foreach ($profile in $Only) {
     $exe = Get-Item "$dir\SnapLite.exe"
     '{0,-20} {1}  ({2:N1} MB)' -f $profile, $exe.FullName, ($exe.Length / 1MB)
 
+    if ($profile -eq 'FrameworkDependent') {
+        # The browser extension, ready to upload to the Chrome Web Store / Edge Add-ons (no developer key).
+        $ext = Join-Path $env:TEMP 'snaplite-store-extension'
+        $p = Start-Process $exe.FullName -ArgumentList '--export-extension', $ext, '--store' -PassThru -Wait
+        if ($p.ExitCode -ne 0) { throw 'Exporting the extension failed.' }
+        $version = (Get-Content (Join-Path $ext 'manifest.json') -Raw | ConvertFrom-Json).version
+        $storeZip = Join-Path $PSScriptRoot "publish\SnapLite-extension-$version-store.zip"
+        Remove-Item $storeZip -ErrorAction SilentlyContinue
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        # manifest.json at the root, and forward slashes in paths (Windows PowerShell would write backslashes).
+        $zipFile = [System.IO.Compression.ZipFile]::Open($storeZip, 'Create')
+        try {
+            foreach ($f in Get-ChildItem $ext -Recurse -File) {
+                $entry = $f.FullName.Substring($ext.Length + 1).Replace('\', '/')
+                [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zipFile, $f.FullName, $entry, 'Optimal')
+            }
+        }
+        finally { $zipFile.Dispose() }
+        Remove-Item -Recurse -Force $ext
+        '{0,-20} {1}  ({2:N0} KB)' -f 'Extension (store)', $storeZip, ((Get-Item $storeZip).Length / 1KB)
+    }
+
     if ($profile -eq 'SelfContained') {
         # The download version: the exe zips from ~118 MB to ~46 MB (and runs uncompressed, so memory stays low).
         $zip = Join-Path $PSScriptRoot 'publish\SnapLite-win-x64-standalone.zip'
