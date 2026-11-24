@@ -1,6 +1,6 @@
 # Builds both release versions of SnapLite into .\publish\
-#   publish\framework-dependent\SnapLite.exe  (~2.4 MB, needs the .NET 10 Desktop Runtime x64)
-#   publish\self-contained\SnapLite.exe       (~117 MB, runs on any 64-bit Windows 10/11)
+#   publish\framework-dependent\SnapLite.exe  (~2.7 MB, needs the .NET 10 Desktop Runtime x64)
+#   publish\self-contained\SnapLite.exe       (~118 MB, runs on any 64-bit Windows 10/11; also zipped, ~46 MB)
 # Usage:  .\publish.ps1            (both)
 #         .\publish.ps1 -Only FrameworkDependent
 param([ValidateSet('FrameworkDependent', 'SelfContained')][string[]]$Only = @('FrameworkDependent', 'SelfContained'))

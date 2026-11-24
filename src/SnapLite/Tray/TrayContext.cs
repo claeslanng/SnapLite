@@ -38,6 +38,9 @@ internal sealed class TrayContext : ApplicationContext, ISettingsHost
     private ToastForm? _toast;
     private BridgeServer? _bridge;
 
+    /// <summary>Set when the install prompt already created the settings file on a first run.</summary>
+    public static bool ShowWelcome { get; set; }
+
     /// <summary>The running instance (for reporting unexpected errors from Program).</summary>
     public static TrayContext? Current { get; private set; }
 
@@ -51,6 +54,7 @@ internal sealed class TrayContext : ApplicationContext, ISettingsHost
         _messageWindow.MessageReceived += (msg, _) =>
         {
             if (msg == Native.WM_SNAPLITE_SHOW) OpenSettings(); // a second launch shows this instance
+            else if (msg == Native.WM_SNAPLITE_EXIT) ExitThread(); // the installer is replacing or removing this copy
         };
 
         // Hotkeys first: they are what the user is waiting for.
@@ -79,7 +83,7 @@ internal sealed class TrayContext : ApplicationContext, ISettingsHost
 
         if (_settingsWarning != null) ShowWarning("Settings were reset", _settingsWarning);
         else if (_lastHotkeyFailures.Count > 0) ReportHotkeyFailures(_lastHotkeyFailures);
-        else if (_firstRun) ShowInfo("SnapLite is running in the tray", WelcomeText());
+        else if (_firstRun || ShowWelcome) ShowInfo("SnapLite is running in the tray", WelcomeText());
 
         EnsureMenu();
 

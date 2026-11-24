@@ -1,5 +1,6 @@
 using SnapLite.Bridge;
 using SnapLite.Interop;
+using SnapLite.Setup;
 using SnapLite.Tray;
 using SnapLite.WebCapture;
 
@@ -32,6 +33,16 @@ internal static class Program
             ApplicationConfiguration.Initialize();
             return DocShots.Run(args);
         }
+        if (args.Length > 0 && args[0] == "--write-icon") return DocShots.WriteIcon(args);
+
+        ApplicationConfiguration.Initialize();
+
+        // Settings › Apps › SnapLite › Uninstall runs "SnapLite.exe --uninstall".
+        if (args.Contains("--uninstall")) return Installer.RunUninstall(args);
+        if (args.Contains("--install")) return Installer.RunInstallCli(args);
+
+        // A downloaded copy offers to install itself (or starts/updates the installed copy).
+        if (Installer.OnStartup(args) == Installer.StartupDecision.Exit) return 0;
 
         using var mutex = new Mutex(initiallyOwned: true, MutexName, out bool createdNew);
         if (!createdNew)
@@ -40,7 +51,6 @@ internal static class Program
             return 0;
         }
 
-        ApplicationConfiguration.Initialize();
         // Unexpected errors: logged to %LOCALAPPDATA%\SnapLite\snaplite.log and shown as a tray
         // notification; the app keeps running.
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -70,7 +80,8 @@ internal static class Program
             return 1;
         }
 
-        GC.KeepAlive(mutex);
+        mutex.ReleaseMutex();
+        if (Installer.LaunchInstalledOnExit) Installer.LaunchInstalled(); // "Install" in Settings: hand over
         return 0;
     }
 

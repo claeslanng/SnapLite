@@ -11,7 +11,16 @@ internal static class StartupRegistration
 
     public const string AutostartArg = "--autostart";
 
-    private static string Command => $"\"{Environment.ProcessPath}\" {AutostartArg}";
+    private static string Command => CommandFor(Environment.ProcessPath);
+
+    private static string CommandFor(string? exe) => $"\"{exe}\" {AutostartArg}";
+
+    /// <summary>Turns autostart on for a specific exe (the installer sets it up for the installed copy).</summary>
+    public static void EnableFor(string exePath)
+    {
+        using var key = Registry.CurrentUser.CreateSubKey(RunKey, writable: true);
+        key.SetValue(ValueName, CommandFor(exePath));
+    }
 
     public static bool IsEnabled()
     {

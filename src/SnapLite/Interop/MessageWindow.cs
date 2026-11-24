@@ -9,7 +9,7 @@ internal sealed class MessageWindow : NativeWindow, IDisposable
 {
     public const string WindowName = "SnapLite.MessageWindow.5b1f7c2e";
 
-    /// <summary>Raised with (message, wParam) for WM_HOTKEY and WM_SNAPLITE_SHOW.</summary>
+    /// <summary>Raised with (message, wParam) for WM_HOTKEY, WM_SNAPLITE_SHOW and WM_SNAPLITE_EXIT.</summary>
     public event Action<int, IntPtr>? MessageReceived;
 
     public MessageWindow()
@@ -19,7 +19,7 @@ internal sealed class MessageWindow : NativeWindow, IDisposable
 
     protected override void WndProc(ref Message m)
     {
-        if (m.Msg is Native.WM_HOTKEY or Native.WM_SNAPLITE_SHOW)
+        if (m.Msg is Native.WM_HOTKEY or Native.WM_SNAPLITE_SHOW or Native.WM_SNAPLITE_EXIT)
         {
             MessageReceived?.Invoke(m.Msg, m.WParam);
             m.Result = IntPtr.Zero;

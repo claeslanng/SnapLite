@@ -11,6 +11,7 @@ internal static unsafe partial class Native
     public const int WM_GETDPISCALEDSIZE = 0x02E4;
     public const int WM_APP = 0x8000;
     public const int WM_SNAPLITE_SHOW = WM_APP + 1;
+    public const int WM_SNAPLITE_EXIT = WM_APP + 2; // sent by the installer/uninstaller
 
     public static readonly IntPtr HWND_MESSAGE = new(-3);
     public const uint ASFW_ANY = unchecked((uint)-1);

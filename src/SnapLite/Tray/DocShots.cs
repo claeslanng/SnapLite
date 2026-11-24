@@ -51,6 +51,73 @@ internal static class DocShots
         return 0;
     }
 
+    /// <summary>
+    /// <c>SnapLite.exe --write-icon path.ico</c>: writes the logo as a Windows icon file with every size
+    /// Explorer, the Start menu and the taskbar ask for (16–256 px, PNG-compressed entries).
+    /// The result is checked in as src/SnapLite/Assets/SnapLite.ico and embedded in the exe.
+    /// </summary>
+    public static int WriteIcon(string[] args)
+    {
+        string path = args.Length > 1 ? args[1] : "SnapLite.ico";
+        int[] sizes = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256];
+        // Classic 32-bit bitmap entries for the small sizes (every Windows component reads those),
+        // PNG for the big ones (96 px and up), which keeps the file small; Windows reads both.
+        var images = sizes.Select(s =>
+        {
+            using var bmp = AppIcons.DrawBitmap(s);
+            return s >= 96 ? Png(bmp) : Dib(bmp);
+        }).ToList();
+
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        using var w = new BinaryWriter(File.Create(path));
+        w.Write((ushort)0); w.Write((ushort)1); w.Write((ushort)sizes.Length); // ICONDIR
+        int offset = 6 + 16 * sizes.Length;
+        for (int i = 0; i < sizes.Length; i++)                                  // ICONDIRENTRY
+        {
+            w.Write((byte)(sizes[i] >= 256 ? 0 : sizes[i]));
+            w.Write((byte)(sizes[i] >= 256 ? 0 : sizes[i]));
+            w.Write((byte)0); w.Write((byte)0);
+            w.Write((ushort)1); w.Write((ushort)32);
+            w.Write(images[i].Length); w.Write(offset);
+            offset += images[i].Length;
+        }
+        foreach (var png in images) w.Write(png);
+        return 0;
+    }
+
+    private static byte[] Png(Bitmap bmp)
+    {
+        using var ms = new MemoryStream();
+        bmp.Save(ms, ImageFormat.Png);
+        return ms.ToArray();
+    }
+
+    /// <summary>An icon image in the classic format: BITMAPINFOHEADER, bottom-up BGRA rows, then an all-zero AND mask.</summary>
+    private static byte[] Dib(Bitmap bmp)
+    {
+        int w = bmp.Width, h = bmp.Height;
+        int maskStride = ((w + 31) / 32) * 4;
+        using var ms = new MemoryStream();
+        using var bw = new BinaryWriter(ms);
+        bw.Write(40); bw.Write(w); bw.Write(h * 2);           // header; height counts colour + mask
+        bw.Write((ushort)1); bw.Write((ushort)32);
+        bw.Write(0); bw.Write(w * h * 4 + maskStride * h);
+        bw.Write(0); bw.Write(0); bw.Write(0); bw.Write(0);
+        var data = bmp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        try
+        {
+            var row = new byte[w * 4];
+            for (int y = h - 1; y >= 0; y--)
+            {
+                System.Runtime.InteropServices.Marshal.Copy(data.Scan0 + y * data.Stride, row, 0, row.Length);
+                bw.Write(row);
+            }
+        }
+        finally { bmp.UnlockBits(data); }
+        bw.Write(new byte[maskStride * h]);
+        return ms.ToArray();
+    }
+
     /// <summary>No user names in published screenshots.</summary>
     private static void Sanitize(Control root)
     {

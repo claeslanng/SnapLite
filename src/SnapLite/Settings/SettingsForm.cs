@@ -34,6 +34,7 @@ internal sealed class SettingsForm : Form
     private static readonly Color Bad = Color.FromArgb(196, 43, 28);
 
     private readonly ISettingsHost _host;
+    private readonly bool _skipInstallPrompt; // not shown in the form; kept as it was
 
     // General
     private readonly CheckBox _startWithWindows = Check("Start SnapLite when Windows starts");
@@ -86,6 +87,7 @@ internal sealed class SettingsForm : Form
     public SettingsForm(ISettingsHost host, AppSettings current, Icon icon)
     {
         _host = host;
+        _skipInstallPrompt = current.SkipInstallPrompt;
 
         SuspendLayout();
         AutoScaleDimensions = new SizeF(96F, 96F);
@@ -167,6 +169,13 @@ internal sealed class SettingsForm : Form
         var link = new LinkLabel { Text = "Open the settings file folder", AutoSize = true, Margin = new Padding(3, 16, 3, 3) };
         link.LinkClicked += (_, _) => OpenFolder(SettingsStore.Folder);
         AddRow(g, link);
+
+        if (Setup.Installer.CanOfferInstall)
+        {
+            var install = new LinkLabel { Text = "Install SnapLite on this PC (Start menu, uninstall from Settings › Apps)…", AutoSize = true, Margin = new Padding(3, 6, 3, 3) };
+            install.LinkClicked += (_, _) => InstallNow();
+            AddRow(g, install);
+        }
         return Page("General", g);
     }
 
@@ -304,6 +313,23 @@ internal sealed class SettingsForm : Form
         _browserRemove.Enabled = on;
     }
 
+    /// <summary>Installs this downloaded copy, then hands over to the installed one.</summary>
+    private void InstallNow()
+    {
+        try
+        {
+            Setup.Installer.Install(_startWithWindows.Checked, stopRunning: false); // the running copy is this one
+            MessageBox.Show(this, "SnapLite is installed. It will now restart from its new place.", "SnapLite",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Setup.Installer.LaunchInstalledOnExit = true; // once this copy has exited and released the single-instance lock
+            Application.ExitThread();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, $"Couldn't install:\n{ex.Message}", "SnapLite", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
     private void ClearWebCache()
     {
         string dir = WebCapture.WebPageSession.UserDataFolder;
@@ -378,6 +404,7 @@ internal sealed class SettingsForm : Form
             ShowNotifications = _notify.Checked,
             TrayLeftClick = ((Choice<CaptureAction>)_trayClick.SelectedItem!).Value,
             UsePrintScreen = _printScreen.Checked,
+            SkipInstallPrompt = _skipInstallPrompt,
             Hotkeys = Actions.ToDictionary(a => a, a => _boxes[a].Binding?.ToString() ?? ""),
             WebViewportWidth = ((Choice<int>)_webViewport.SelectedItem!).Value,
             WebHideBanners = _webBanners.Checked,

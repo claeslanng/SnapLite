@@ -45,6 +45,9 @@ internal sealed class AppSettings
     public bool ShowNotifications { get; set; } = true;
     public CaptureAction TrayLeftClick { get; set; } = CaptureAction.Region;
 
+    /// <summary>The user chose "Just run it" when offered to install; don't ask again.</summary>
+    public bool SkipInstallPrompt { get; set; }
+
     /// <summary>Also bind the bare Print Screen key to region capture. Off by default (Windows uses it).</summary>
     public bool UsePrintScreen { get; set; }
 
