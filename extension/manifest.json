@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "SnapLite",
+  "version": "0.1.0",
+  "description": "Full-page and step-by-step screenshots of the page you're on, including pages you're logged in to. Saved through the SnapLite app.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwUhSmDotmitigTjeFgr2hXQ2yUzw23bgwJrCrTxd+rFi+pr4jL3Fok2A0tVKiYpADfYXrcXs/9eW1XeW2Sns/9f8DBxJZM8I3j59Jl7txhmFcLnDDPoJJWLCFoZ0znAE9osZz0f3rMSltuoCjci/w3qSDouV+58Zs62t3KfMtxgpKhR/kjTegYxZD/wMkn9Z2BA5+/WZIZodBSU/pGGt1/U6lA9UM3uZC7sscKIWjwsx6Pc/2blxdW3fkK5XB11YSr1JzUPdREskgx9xHGEznTUrp1MedhOH0g+T+yNbNtwY6VxcdHk9ow6kBJ2n6vSB8oBmcKE7iI7viQWAazj5uQIDAQAB",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "scripting", "nativeMessaging", "downloads", "storage", "offscreen"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "SnapLite",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "commands": {
+    "capture-full": { "suggested_key": { "default": "Alt+Shift+F" }, "description": "Capture the full page" },
+    "capture-steps": { "suggested_key": { "default": "Alt+Shift+S" }, "description": "Capture the page in steps" },
+    "capture-visible": { "suggested_key": { "default": "Alt+Shift+V" }, "description": "Capture the visible part" }
+  }
+}

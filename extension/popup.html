@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SnapLite</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f9f9f9; --fg: #1b1b1b; --sub: #5f5f5f; --line: #dcdcdc;
+    --btn: #ffffff; --btn-hover: #f0f0f0; --accent: #005fb8; --ok: #107c10; --warn: #9d5d00; --bad: #c42b1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #2b2b2b; --fg: #f2f2f2; --sub: #b4b4b4; --line: #454545;
+      --btn: #353535; --btn-hover: #404040; --accent: #4cc2ff; --ok: #6ccb5f; --warn: #fce100; --bad: #ff99a4;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 300px; padding: 12px; background: var(--bg); color: var(--fg);
+         font: 13px/1.4 "Segoe UI", system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+  header img { width: 20px; height: 20px; }
+  .actions { display: grid; gap: 6px; }
+  button { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 9px 12px;
+           border: 1px solid var(--line); border-radius: 6px; background: var(--btn); color: var(--fg);
+           font: inherit; text-align: left; cursor: pointer; }
+  button:hover { background: var(--btn-hover); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.primary { border-color: var(--accent); }
+  button span small { display: block; color: var(--sub); font-size: 11.5px; }
+  kbd { font: 11px "Segoe UI", system-ui, sans-serif; color: var(--sub); white-space: nowrap; }
+  .options { margin: 12px 0 0; display: grid; gap: 6px; }
+  label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+  label input { margin: 2px 0 0; }
+  .status { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--sub); font-size: 12px; }
+  .status b { font-weight: 600; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  #last:empty { display: none; }
+  #last { margin-top: 6px; }
+</style>
+</head>
+<body>
+  <header><img src="icons/icon32.png" alt="">SnapLite</header>
+
+  <div class="actions">
+    <button class="primary" data-kind="full"><span>Full page<small>The whole page, top to bottom</small></span><kbd data-command="capture-full"></kbd></button>
+    <button data-kind="steps"><span>Page in steps<small>Numbered images, one per section</small></span><kbd data-command="capture-steps"></kbd></button>
+    <button data-kind="visible"><span>Visible part<small>Just what's on screen</small></span><kbd data-command="capture-visible"></kbd></button>
+  </div>
+
+  <div class="options">
+    <label><input type="checkbox" id="cleanup"><span>Hide cookie banners, pop-ups and floating buttons</span></label>
+    <label><input type="checkbox" id="smartSteps"><span>Steps: split at sections (otherwise one per screen)</span></label>
+    <label><input type="checkbox" id="useApp"><span>Save with the SnapLite app (folder, clipboard, notification)</span></label>
+  </div>
+
+  <div class="status">
+    <div id="app">Looking for the SnapLite app…</div>
+    <div id="last"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

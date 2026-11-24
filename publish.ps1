@@ -1,0 +1,27 @@
+# Builds both release versions of SnapLite into .\publish\
+#   publish\framework-dependent\SnapLite.exe  (~2.4 MB, needs the .NET 10 Desktop Runtime x64)
+#   publish\self-contained\SnapLite.exe       (~117 MB, runs on any 64-bit Windows 10/11)
+# Usage:  .\publish.ps1            (both)
+#         .\publish.ps1 -Only FrameworkDependent
+param([ValidateSet('FrameworkDependent', 'SelfContained')][string[]]$Only = @('FrameworkDependent', 'SelfContained'))
+
+$ErrorActionPreference = 'Stop'
+Set-Location $PSScriptRoot
+
+# A running SnapLite locks its files.
+Get-Process SnapLite -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$PSScriptRoot\publish\*" } | Stop-Process -Force
+
+dotnet test tests/SnapLite.Tests -c Release --nologo
+if ($LASTEXITCODE -ne 0) { throw 'Tests failed; nothing published.' }
+
+foreach ($profile in $Only) {
+    # Both profiles share intermediate files (win-x64); start each one clean so they can't mix.
+    Remove-Item -Recurse -Force 'src\SnapLite\obj\Release\net10.0-windows\win-x64' -ErrorAction SilentlyContinue
+    $dir = if ($profile -eq 'FrameworkDependent') { 'publish\framework-dependent' } else { 'publish\self-contained' }
+    Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
+
+    dotnet publish src/SnapLite -p:PublishProfile=$profile --nologo
+    if ($LASTEXITCODE -ne 0) { throw "Publishing $profile failed." }
+    $exe = Get-Item "$dir\SnapLite.exe"
+    '{0,-20} {1}  ({2:N1} MB)' -f $profile, $exe.FullName, ($exe.Length / 1MB)
+}

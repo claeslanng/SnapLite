@@ -1,0 +1,9 @@
+bin/
+obj/
+publish/
+.vs/
+*.user
+TestResults/
+
+# Private development notes (kept locally)
+PROGRESS.md
