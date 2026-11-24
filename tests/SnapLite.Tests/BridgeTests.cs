@@ -46,6 +46,19 @@ public class BridgeTests
     }
 
     [Fact]
+    public void Store_extension_ids_are_well_formed_and_distinct()
+    {
+        string setup = File.ReadAllText(Path.Combine(RepoRoot(), "src", "SnapLite", "Bridge", "BrowserSetup.cs"));
+        string list = Regex.Match(setup, @"StoreExtensionIds\s*=\s*\[(.*?)\];", RegexOptions.Singleline).Groups[1].Value;
+        var ids = Regex.Matches(list, "\"([^\"]*)\"").Select(m => m.Groups[1].Value).ToList();
+
+        Assert.NotEmpty(ids);
+        Assert.All(ids, id => Assert.Matches("^[a-p]{32}$", id)); // a typo would silently block the store version
+        Assert.Equal(ids.Count, ids.Distinct().Count());
+        Assert.DoesNotContain("gfgeiefplicdmofnbiinlhlknjdcnkpl", ids); // that's the developer ID, already trusted
+    }
+
+    [Fact]
     public void Layout_from_the_browser_is_scaled_to_image_pixels()
     {
         using var doc = JsonDocument.Parse("""

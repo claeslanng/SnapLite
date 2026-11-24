@@ -13,7 +13,8 @@ Everything to upload and paste is in this folder. The package is built by `publi
 ## 2. Upload, then send the item ID back
 
 1. Click **New item** and upload `publish\SnapLite-extension-1.0.0-store.zip`.
-2. The dashboard now shows the item's **ID** (32 letters a–p). **Add it to
+2. The dashboard now shows the item's **ID** (32 letters a–p; the Chrome Web Store ID is
+   `cpllehgmchajmhgeimiciapplhgfhokj`, trusted since SnapLite 1.0.1). **Add it to
    `BrowserSetup.StoreExtensionIds`** in `src/SnapLite/Bridge/BrowserSetup.cs` and publish a new
    SnapLite version. Until then, the store version can't talk to the app and falls back to downloads.
    Installed copies pick up the new ID on their next start.

@@ -23,7 +23,10 @@ internal static class BrowserSetup
     /// IDs the Chrome Web Store / Edge Add-ons gave the published extension (stores assign their own).
     /// Add each one here when it's known; installed copies pick it up on their next start.
     /// </summary>
-    public static readonly string[] StoreExtensionIds = [];
+    public static readonly string[] StoreExtensionIds =
+    [
+        "cpllehgmchajmhgeimiciapplhgfhokj", // Chrome Web Store
+    ];
 
     /// <summary>Every extension allowed to start SnapLite as its native messaging host.</summary>
     public static IEnumerable<string> AllowedExtensionIds => [ExtensionId, .. StoreExtensionIds];
