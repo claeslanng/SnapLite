@@ -9,7 +9,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>SnapLite</RootNamespace>
     <AssemblyName>SnapLite</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <!-- The logo for Explorer, the Start menu, the taskbar and Settings › Apps (regenerate it with the write-icon switch, see DocShots.cs). -->
     <ApplicationIcon>Assets\SnapLite.ico</ApplicationIcon>
 

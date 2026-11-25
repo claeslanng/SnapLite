@@ -28,6 +28,9 @@ internal static class BrowserSetup
         "cpllehgmchajmhgeimiciapplhgfhokj", // Chrome Web Store
     ];
 
+    /// <summary>The extension's page in the Chrome Web Store (also installs in Edge and Brave).</summary>
+    public const string ChromeWebStoreUrl = "https://chromewebstore.google.com/detail/snaplite/cpllehgmchajmhgeimiciapplhgfhokj";
+
     /// <summary>Every extension allowed to start SnapLite as its native messaging host.</summary>
     public static IEnumerable<string> AllowedExtensionIds => [ExtensionId, .. StoreExtensionIds];
 

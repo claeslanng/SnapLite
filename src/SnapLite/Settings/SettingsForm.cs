@@ -256,22 +256,30 @@ internal sealed class SettingsForm : Form
         AddRow(g, Hint("Capture the page you're looking at in Chrome or Edge, including pages you're logged in to: " +
                        "full page, in steps or the visible part. Captures are saved here, with your folder, clipboard and " +
                        "notification settings."));
+        AddRow(g, Bold("1. Connect SnapLite to your browsers"));
         AddRow(g, _browserStatus);
-
         var buttons = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         buttons.Controls.Add(_browserSetUp);
         buttons.Controls.Add(_browserRemove);
         AddRow(g, buttons);
 
-        AddRow(g, Hint("Got the extension from the Chrome Web Store? Then Set up is all you need.\n\n" +
-                       "Otherwise, add the extension to your browser (once):\n" +
-                       "1. Open the extensions page and turn on “Developer mode”.\n" +
-                       "2. Click “Load unpacked” and choose this folder:"));
+        AddRow(g, Bold("2. Add the SnapLite extension"));
+        var store = new LinkLabel { Text = "Get SnapLite from the Chrome Web Store", AutoSize = true, Margin = new Padding(3, 4, 3, 2) };
+        store.Font = new Font(Font.FontFamily, Font.Size * 1.1f, FontStyle.Bold);
+        store.LinkClicked += (_, _) => OpenUrl(Bridge.BrowserSetup.ChromeWebStoreUrl);
+        AddRow(g, store);
+        AddRow(g, Hint("Works in Chrome, Edge and Brave. Edge asks you to allow extensions from other stores first."));
+
+        AddRow(g, Bold("3. Pin it next to the address bar"));
+        AddRow(g, Hint("Shortcuts: Alt+Shift+F full page, Alt+Shift+S steps, Alt+Shift+V visible part " +
+                       "(change them at chrome://extensions/shortcuts)."));
+
+        AddRow(g, Hint("Can't use the store? Turn on “Developer mode” on the extensions page, click “Load unpacked” " +
+                       "and choose this folder:"));
         var copy = new Button { Text = "Copy", AutoSize = true };
         copy.Click += (_, _) => { try { Clipboard.SetText(_browserFolder.Text); } catch { } };
         AddRow(g, _browserFolder, copy);
-
-        var links = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 4, 0, 0) };
+        var links = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 0, 0, 0) };
         foreach (string browser in new[] { "Chrome", "Edge" })
         {
             if (!Bridge.BrowserSetup.IsInstalled(browser)) continue;
@@ -280,9 +288,6 @@ internal sealed class SettingsForm : Form
             links.Controls.Add(link);
         }
         AddRow(g, links);
-        AddRow(g, Hint("3. Pin SnapLite next to the address bar. Shortcuts: Alt+Shift+F full page, Alt+Shift+S steps, " +
-                       "Alt+Shift+V visible part (change them at chrome://extensions/shortcuts)."));
-
         _browserSetUp.Click += (_, _) => RunBrowserSetup(remove: false);
         _browserRemove.Click += (_, _) => RunBrowserSetup(remove: true);
         UpdateBrowserStatus();
@@ -307,7 +312,7 @@ internal sealed class SettingsForm : Form
     {
         bool on = Bridge.BrowserSetup.IsSetUp;
         _browserStatus.Text = on
-            ? "✓ Set up. SnapLite is registered for Chrome, Edge and Brave, and the extension files are in the folder below."
+            ? "✓ Set up: the extension can save through SnapLite in Chrome, Edge and Brave."
             : "Not set up yet.";
         _browserStatus.ForeColor = on ? Ok : SystemColors.ControlText;
         _browserSetUp.Text = on ? "Repair / update" : "Set up";
@@ -581,6 +586,14 @@ internal sealed class SettingsForm : Form
         var p = new TabPage(title) { Padding = new Padding(6), UseVisualStyleBackColor = true, AutoScroll = true };
         p.Controls.Add(content);
         return p;
+    }
+
+    private static Label Bold(string text) =>
+        new() { Text = text, AutoSize = true, Font = new Font(SystemFonts.MessageBoxFont ?? Control.DefaultFont, FontStyle.Bold), Margin = new Padding(3, 10, 3, 2) };
+
+    private static void OpenUrl(string url)
+    {
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); } catch { }
     }
 
     private static Label FieldLabel(string text) =>

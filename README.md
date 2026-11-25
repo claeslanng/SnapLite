@@ -7,6 +7,10 @@ memory, and is ready in about 0.1 s.
 2.7 MB exe for Windows 10/11 (64-bit). It needs the free .NET 10 Desktop Runtime; Windows offers
 to install it if it's missing. Or get the standalone zip (46 MB), which needs nothing.
 
+**[🧩 Add the extension to Chrome](https://chromewebstore.google.com/detail/snaplite/cpllehgmchajmhgeimiciapplhgfhokj)**
+from the Chrome Web Store, for full-page and step screenshots of the tab you're on. It also works
+in Edge and Brave.
+
 ## Installing
 
 Open the downloaded exe. SnapLite offers to install itself:
@@ -134,12 +138,16 @@ sections by the same code the desktop app uses.
 
 **Set up (once):**
 
-1. In SnapLite: **Settings → Browser → Set up**. This writes the extension to
-   `%LOCALAPPDATA%\SnapLite\browser-extension` and registers SnapLite with Chrome, Edge and Brave
-   (per user; no admin rights needed).
-2. In the browser, open the extensions page (`chrome://extensions` or `edge://extensions`), turn on
-   **Developer mode**, click **Load unpacked** and choose that folder.
+1. In SnapLite: **Settings → Browser → Set up**. This registers SnapLite with Chrome, Edge and Brave
+   so the extension can save through it (per user; no admin rights needed).
+2. Install the extension from the
+   **[Chrome Web Store](https://chromewebstore.google.com/detail/snaplite/cpllehgmchajmhgeimiciapplhgfhokj)**.
+   Edge asks you to allow extensions from other stores first.
 3. Pin SnapLite next to the address bar.
+
+Can't use the store? Step 1 also writes the extension to `%LOCALAPPDATA%\SnapLite\browser-extension`:
+open the extensions page (`chrome://extensions` or `edge://extensions`), turn on **Developer mode**,
+click **Load unpacked** and choose that folder.
 
 | Shortcut (browser) | Capture |
 |---|---|
@@ -155,9 +163,9 @@ sections needs the app.
 The extension only asks for `activeTab`, so it can only see a tab when you click its icon or press
 one of its shortcuts. It has no access to your other tabs or your browsing history.
 
-Everything needed to publish it in the Chrome Web Store or Edge Add-ons (package, listing texts,
-images, checklist) is in [docs/store](docs/store/README.md). `publish.ps1` builds the upload
-package, `publish\SnapLite-extension-<version>-store.zip`.
+To publish a new version of the extension: `publish.ps1` builds the upload package,
+`publish\SnapLite-extension-<version>-store.zip`. The listing texts, images and checklist are in
+[docs/store](docs/store/README.md).
 
 ## Command line
 
@@ -262,6 +270,5 @@ shared-scripts       page scripts used by both the desktop web capture and the e
   carousel) can come out blank in full-webpage capture.
 - The full-webpage capture's hidden browser isn't logged in to sites; use the browser extension
   for those pages.
-- The extension must be loaded with "Load unpacked" (it isn't in the Chrome Web Store). Chrome may
-  show a "developer mode extensions" reminder at startup. The tab has to stay in front while it
-  captures, and Chrome limits it to two screenshots a second (about 0.5 s per screen).
+- The browser extension needs the tab to stay in front while it captures, and Chrome limits it to
+  two screenshots a second (about 0.5 s per screen).
