@@ -11,7 +11,7 @@ to install it if it's missing. Or get the standalone zip (46 MB), which needs no
 from the Chrome Web Store, for full-page and step screenshots of the tab you're on. It also works
 in Edge and Brave.
 
-(My best advice is to install both, so your screenshot will be stored together)
+(My best advice is to install both, so your screenshots will be stored together)
 
 ## Installing
 
